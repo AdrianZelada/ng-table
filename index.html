@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ng-table</title>
+	<script type="text/javascript" src="angular.js"></script>
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="app.js"></script>
+</head>
+<body ng-app="app">
+	<div ng-controller="MainCtrl">
+		<table table-sir tabledata="data">
+			<thead>
+				<tr>
+					<th sorting="true">Nombre</th>
+					<th>Curso</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="item in data">
+					<td>{{item.postId}}</td>
+					<td>{{item.name}}</td>
+				</tr>
+			</tbody>
+			<div>test</div>
+		</table>	 
+		
+	</div>
+</body>
+</html>
