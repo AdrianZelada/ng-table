@@ -5,10 +5,15 @@
 	<script type="text/javascript" src="angular.js"></script>
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript" src="app.js"></script>
+	<script type="text/javascript" src="dataTablesDirective.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
 </head>
 <body ng-app="app">
 	<div ng-controller="MainCtrl">
-		<table table-sir tabledata="data">
+	<table  class="table table-striped" table-directive tabledata="data" filter="name">
+		<!-- <table table-sir tabledata="data"> -->
 			<thead>
 				<tr>
 					<th sorting="true">Nombre</th>

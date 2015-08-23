@@ -4,11 +4,7 @@
 //<table table-directive tabledata="data" filter="nombre">
 //
 
-angular.module('epsasAngJsApp').factory('tableFactory',function(){
-//
-//    function tableFactory(data){
-//        this.data=data;
-//    }
+angular.module('app').factory('tableFactory',function(){
 
     return{
         data:null,
@@ -25,67 +21,77 @@ angular.module('epsasAngJsApp').factory('tableFactory',function(){
         },
         controller:function($scope,$filter,tableFactory,$element){
             var orderBy=$filter('orderBy');
-            var auxData=null;
+            $scope.auxData=null;
+            $scope.searchData=null;
             $scope.formSorting=true;
 
-            var navigation=angular.element('<nav>\
-                                                <ul class="pagination"></ul>\
-                                            </nav>');
-            navigation=navigation[0].children[0];
+            var navigation=angular.element('<ul class="pagination"></ul>');
+            navigation=navigation[0];
 
             $scope.sorting=function(attr){
                 $scope.tabledata=orderBy($scope.tabledata,attr,$scope.formSorting);
                 $scope.$apply();
             }
 
-            $scope.$watch('tabledata',function(newValue,oldValue){
+            $scope.$watch('tabledata',function(newValue,oldValue){            
                 if(newValue!=oldValue){
-                    if(auxData == null){
+                    console.log("cambio Data");
+                    if($scope.auxData == null){
                         $scope.tabledata=orderBy($scope.tabledata,"nombre",false)
-                        auxData=$scope.tabledata;
-
-
-//                        creacion  dinamica de pagination
-
-                        var lengthData=$scope.tabledata.length/10;
-                        $scope.tabledata=auxData.slice(0,10);
-                        console.log(lengthData);
-
-                        for(var i=1;i<=lengthData;i++){
-                            var NavLi=angular.element('<li ng-click="listPage('+i+')">\
-                                                            <a>'+i+'</a>\
-                                                        </li>');
-                            $(navigation).append(NavLi);
-                        }
-                        $compile(navigation)($scope);
-                        $element.append(navigation);
-                    }
-                }
+                        $scope.auxData=$scope.tabledata;
+                        createPagination('tabledata');                            
+                        $scope.tabledata=$scope.auxData.slice(0,10);                                                                    
+                    }     
+                    if($scope.search){                    
+                        createPagination('searchData');
+                    }      
+                }                
             });
 
-            $scope.listPage=function(num){
-                console.log(num);
+            $scope.$watch('search',function(newValue,oldValue){                
+                if(newValue!=oldValue){
+                    $scope.searchData=$filter('filter')($scope.auxData,newValue);                                        
+                    $scope.tabledata=$scope.searchData.slice(0,10);
+                    if(newValue==""){
+                        createPagination('searchData');
+                    }
+                }                
+            })
+
+            $scope.listPage=function(num){                
                 listaPage(num);
             }
-            $scope.$watch('search',function(newValue,oldValue){
-                console.log(newValue);
-                if(newValue!=oldValue){
-                    $scope.tabledata=$filter('filter')(auxData,newValue);
-                    $scope.tabledata=$scope.tabledata.slice(0,10);
-                }
-//                $scope.tabledata=$filter('filter')($scope.tabledata,newValue);
-            })
+
             $scope.nextList=function(){
                 return function(){
-                    $scope.tabledata=auxData.slice(9,19);
+                    $scope.tabledata=$scope.auxData.slice(9,19);
                     $scope.$apply();
                 }()
             }
-            function listaPage(num){
-                $scope.tabledata=auxData.slice((num-1)*10,num*10);
-                console.log($scope.tabledata);
-//                $scope.$apply();
+
+            function createPagination(data){
+                var lengthData=Math.ceil($scope[data].length/10);  
+                $(navigation).empty();
+                   
+                // $scope.tabledata=$scope.auxData.slice(0,10);                        
+                for(var i=1;i<=lengthData;i++){
+                    var NavLi=angular.element('<li ng-click="listPage('+i+')">\
+                                                    <a>'+i+'</a>\
+                                                </li>');
+                    $(navigation).append(NavLi);
+                }
+                $compile(navigation)($scope);
+                $element.append(navigation);                        
             }
+
+            function listaPage(num){
+                if($scope.search){
+                    $scope.tabledata=$scope.searchData.slice((num-1)*10,num*10);                    
+                }else{                    
+                    $scope.tabledata=$scope.auxData.slice((num-1)*10,num*10);
+                }                                
+            }
+
         },
         link:function(scope,element,attr){
             var table=angular.element(element)[0];
@@ -115,18 +121,5 @@ angular.module('epsasAngJsApp').factory('tableFactory',function(){
                 $compile(Search)(scope);
             }
         }
-    }
-});
-angular.module('epsasAngJsApp').directive('tableSortingDirective',function(){
-    return{
-         restrict:'A',
-         require:'',
-         scope:{},
-         controller:function(){
-
-         },
-         link:function(){
-             console.log("data-table-sorting-directive")
-         }
     }
 });
