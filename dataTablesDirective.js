@@ -112,21 +112,23 @@ angular.module('app').factory('tableFactory',function(){
                     if(i<=6){
                         console.log(i);
                         $scope.showItem.push({
+                            num:i,
                             active:true
                         });
                     }else{
                         $scope.showItem.push({
+                            num:i,
                             active:false
                         });
                     }
                 }
                 for(var i=1;i<=lengthData;i++){
-                    var NavLi=angular.element('<li ng-show="showItem['+i+'].active" ng-click="listPage('+i+')">\
+                    var NavLi=angular.element('<li ng-show="showItem['+i+'].active" ng-class="{\'active\':showItem['+i+'].num==pageNow}" ng-click="listPage('+i+')">\
                                                     <a>'+i+'</a>\
                                                 </li>');
                     $(navigation).append(NavLi);
                 }
-                var onBack=angular.element('<li ng-disable="true" ng-click="lastPage()">\
+                var onBack=angular.element('<li class="disabled" ng-click="lastPage()">\
                                                                     <a > Atras  </a>\
                                                                 </li>')
                 var next=angular.element('<li ng-disable="false" ng-click="nextPage()">\
