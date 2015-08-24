@@ -21,9 +21,12 @@ angular.module('app').factory('tableFactory',function(){
         },
         controller:function($scope,$filter,tableFactory,$element){
             var orderBy=$filter('orderBy');
+
             $scope.auxData=null;
             $scope.searchData=null;
             $scope.formSorting=true;
+            $scope.showItem=[];            
+            $scope.pageNow=1;
 
             var navigation=angular.element('<ul class="pagination"></ul>');
             navigation=navigation[0];
@@ -56,10 +59,42 @@ angular.module('app').factory('tableFactory',function(){
                         createPagination('searchData');
                     }
                 }                
-            })
+            });
 
-            $scope.listPage=function(num){                
+            $scope.listPage=function(num,show){     
+                $scope.pageNow=num;                                           
+                var nextItem=$scope.showItem[num+1];
+                var lastItem=$scope.showItem[num-1];                
+
+                if(!angular.isUndefined(nextItem) && !angular.isUndefined(lastItem)){
+                    if(nextItem.active==false){
+                        nextItem.active=true;
+                        if(!angular.isUndefined($scope.showItem[num-4])){
+                            $scope.showItem[num-4].active=false;
+                        }
+                    }
+                    if(lastItem.active==false){
+                        lastItem.active=true;
+                        if(!angular.isUndefined($scope.showItem[num+4])){
+                            $scope.showItem[num+4].active=false;
+                        }
+                    }
+                }            
                 listaPage(num);
+            }
+
+            $scope.nextPage=function(){
+                return function(){
+                    $scope.pageNow++;
+                    listaPage($scope.pageNow);
+                }()
+            }
+
+            $scope.lastPage=function(){
+                return function(){
+                    $scope.pageNow--;
+                    listaPage($scope.pageNow);
+                }()
             }
 
             $scope.nextList=function(){
@@ -71,15 +106,36 @@ angular.module('app').factory('tableFactory',function(){
 
             function createPagination(data){
                 var lengthData=Math.ceil($scope[data].length/10);  
-                $(navigation).empty();
-                   
-                // $scope.tabledata=$scope.auxData.slice(0,10);                        
+                $(navigation).empty();                                        
+                $scope.showItem=[];
+                for(var i=1;i<=lengthData+1;i++){
+                    if(i<=6){
+                        console.log(i);
+                        $scope.showItem.push({
+                            active:true
+                        });
+                    }else{
+                        $scope.showItem.push({
+                            active:false
+                        });
+                    }
+                }
                 for(var i=1;i<=lengthData;i++){
-                    var NavLi=angular.element('<li ng-click="listPage('+i+')">\
+                    var NavLi=angular.element('<li ng-show="showItem['+i+'].active" ng-click="listPage('+i+')">\
                                                     <a>'+i+'</a>\
                                                 </li>');
                     $(navigation).append(NavLi);
                 }
+                var onBack=angular.element('<li ng-disable="true" ng-click="lastPage()">\
+                                                                    <a > Atras  </a>\
+                                                                </li>')
+                var next=angular.element('<li ng-disable="false" ng-click="nextPage()">\
+                                                    <a> Siguiente </a>\
+                                                </li>')
+                $(navigation).prepend(onBack);                
+                $(navigation).append(next);
+
+
                 $compile(navigation)($scope);
                 $element.append(navigation);                        
             }
@@ -114,7 +170,6 @@ angular.module('app').factory('tableFactory',function(){
                         }
                     });
                 }
-
                 var Search=angular.element('<input type="text" ng-model="search">');
 //              // .... poner el estilo de el search a un costado
                 $(table).prepend(Search);
